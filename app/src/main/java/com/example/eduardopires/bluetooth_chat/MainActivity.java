@@ -11,9 +11,4 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
-
-    public class Splash extends Activity {
-        private final int SPLASH_DISPLAY_LENGTH = 1000;
-
-    }
 }
