@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(pager);
     }
 
-    public void setupViewPager(ViewPager viewPager) {
+    private void setupViewPager(ViewPager viewPager) {
         BluetoothPagerAdapter adapter = new BluetoothPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new PairingFragment(), "Parear");
         adapter.addFragment(new ConversationsFragment(), "Conversas");
