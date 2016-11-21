@@ -18,14 +18,14 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.design.widget.FloatingActionButton
+    <!--android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
         android:layout_marginRight="12dp"
         android:layout_marginBottom="12dp"
         android:backgroundTint="@color/colorPrimary"
-        android:src="@drawable/refresh_icon"/>
+        android:src="@drawable/refresh_icon"/-->
 
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
