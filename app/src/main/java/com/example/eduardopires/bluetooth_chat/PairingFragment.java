@@ -1,6 +1,7 @@
 package com.example.eduardopires.bluetooth_chat;
 
 
+import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
@@ -15,6 +16,7 @@ import com.example.eduardopires.bluetooth_chat.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -41,6 +43,20 @@ public class PairingFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         return view;
+    }
+
+    public void setBondedDevicesName(Set<BluetoothDevice> bondedDevices) {
+        for (BluetoothDevice device: bondedDevices) {
+            String name = device.getName();
+            bondedDevicesName.add(name);
+        }
+    }
+
+    public void setAvailableDevicesName(Set<BluetoothDevice> availableDevices) {
+        for (BluetoothDevice device: availableDevices) {
+            String name = device.getName();
+            bondedDevicesName.add(name);
+        }
     }
 
 }
