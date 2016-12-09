@@ -71,6 +71,15 @@ public class PairingAdapter extends SimpleSectionedAdapter<PairingAdapter.ItemVi
         holder.textView.setText(deviceName);
     }
 
+    public void updateBondedDevices(List<BluetoothDevice> bondedDevices) {
+        this.bondedDevices = bondedDevices;
+        notifyDataSetChanged();
+    }
+
+    public void updateAvailableDevices(List<BluetoothDevice> availableDevices) {
+        this.availableDevices = availableDevices;
+        notifyDataSetChanged();
+    }
 
     protected static class ItemViewHolder extends RecyclerView.ViewHolder {
         private TextView textView;

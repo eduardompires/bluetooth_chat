@@ -45,16 +45,21 @@ public class PairingFragment extends Fragment {
         return view;
     }
 
-    public void setBondedDevices(Set<BluetoothDevice> bondedDevices) {
-        for (BluetoothDevice device: bondedDevices) {
-            bondedDevices.add(device);
+    public void setBondedDevices(List<BluetoothDevice> bondedDevices) {
+        if (bondedDevices != null) {
+            this.bondedDevices = bondedDevices;
         }
     }
 
-    public void setAvailableDevices(Set<BluetoothDevice> availableDevices) {
-        for (BluetoothDevice device: availableDevices) {
-            availableDevices.add(device);
+    public void setAvailableDevices(List<BluetoothDevice> availableDevices) {
+        if (availableDevices != null) {
+            this.availableDevices = availableDevices;
         }
+    }
+
+    public void updateLists(List<BluetoothDevice> availableDevices, List<BluetoothDevice> bondedDevices) {
+        adapter.updateAvailableDevices(availableDevices);
+        adapter.updateBondedDevices(bondedDevices);
     }
 
 }

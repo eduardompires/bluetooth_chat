@@ -1,5 +1,6 @@
 package com.example.eduardopires.bluetooth_chat;
 
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -12,21 +13,26 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static int ENABLE_BLUETOOTH = 1;
-    private static int SELECT_PAIRED_DEVICE = 2;
-    private static int SELECT_DISCOVERED_DEVICE = 3;
+    private static int ENABLE_BLUETOOTH = 0;
+    private static int SELECT_PAIRED_DEVICE = 1;
+    private static int SELECT_DISCOVERED_DEVICE = 2;
 
     private ViewPager pager;
     private BluetoothAdapter bluetoothAdapter;
     private FloatingActionButton fab;
-    private Set<BluetoothDevice> bondedDevices;
-    private Set<BluetoothDevice> availableDevices;
+    private List<BluetoothDevice> bondedDevices = new ArrayList<BluetoothDevice>();
+    private List<BluetoothDevice> availableDevices = new ArrayList<BluetoothDevice>();
+    private ProgressDialog dialog;
+    private PairingFragment fragment = new PairingFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,17 +44,22 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 
         pager = (ViewPager) findViewById(R.id.pager);
-        setupViewPager(pager);
 
         tabLayout.setupWithViewPager(pager);
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        bondedDevices = new ArrayList<>(bluetoothAdapter.getBondedDevices());
+        Log.d("Bonded Devices", bluetoothAdapter.getBondedDevices().toString());
+
+        setupViewPager(pager);
 
         if (bluetoothAdapter == null) {
             Snackbar.make(null, "Seu dispositivo não tem suporte a Bluetooth", Snackbar.LENGTH_SHORT).show();
             finish();
-        } else if (!bluetoothAdapter.isEnabled()){
-            Intent bluetoothIntent = new Intent(BLUETOOTH_SERVICE);
+        } else if (bluetoothAdapter.isEnabled()){
+            Snackbar.make(findViewById(R.id.root_view), "Bluetooth ligado", Snackbar.LENGTH_SHORT);
+        } else {
+            Intent bluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(bluetoothIntent, ENABLE_BLUETOOTH);
         }
 
@@ -58,9 +69,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 bluetoothAdapter.startDiscovery();
-
-                IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-                registerReceiver(receiver, filter);
+                dialog = ProgressDialog.show(MainActivity.this, "BluetoothChat", "Buscando dispositivos...", false, true);
+                registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+                registerReceiver(receiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
             }
         });
     }
@@ -69,8 +80,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ENABLE_BLUETOOTH) {
             if (resultCode == RESULT_OK) {
-                Snackbar.make(null, "Bluetooth ativado", Snackbar.LENGTH_SHORT).show();
-                bondedDevices = bluetoothAdapter.getBondedDevices();
+                Snackbar.make(findViewById(R.id.root_view), "Bluetooth ativado", Snackbar.LENGTH_SHORT).show();
             }
         }
     }
@@ -78,17 +88,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
+        if (bluetoothAdapter != null) {
+            bluetoothAdapter.cancelDiscovery();
+        }
         unregisterReceiver(receiver);
     }
 
     private void setupViewPager(ViewPager viewPager) {
         BluetoothPagerAdapter adapter = new BluetoothPagerAdapter(getSupportFragmentManager());
 
-        PairingFragment fragment = new PairingFragment();
-        fragment.setBondedDevicesName(bondedDevices);
+        fragment.setBondedDevices(bondedDevices);
+        fragment.setAvailableDevices(availableDevices);
 
-        adapter.addFragment(new PairingFragment(), "Parear");
+        adapter.addFragment(fragment, "Parear");
         adapter.addFragment(new ConversationsFragment(), "Conversas");
         viewPager.setAdapter(adapter);
     }
@@ -99,7 +111,18 @@ public class MainActivity extends AppCompatActivity {
             String action = intent.getAction();
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                availableDevices.add(device);
+                if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
+                    availableDevices.add(device);
+                    Log.d("Available Devices", availableDevices.toString());
+                } else {
+                    bondedDevices.add(device);
+                }
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+                Snackbar.make(findViewById(R.id.root_view), "Busca iniciada", Snackbar.LENGTH_SHORT);
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                Snackbar.make(findViewById(R.id.root_view), "Busca finalizada", Snackbar.LENGTH_SHORT);
+                fragment.updateLists(availableDevices, bondedDevices);
+                dialog.dismiss();
             }
         }
     };
