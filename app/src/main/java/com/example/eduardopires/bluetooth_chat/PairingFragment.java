@@ -26,8 +26,8 @@ public class PairingFragment extends Fragment {
     private RecyclerView recyclerView;
     private PairingAdapter adapter;
 
-    private List<String> bondedDevicesName = new ArrayList<String>();
-    private List<String> availableDevicesName= new ArrayList<String>();
+    private List<BluetoothDevice> bondedDevices = new ArrayList<BluetoothDevice>();
+    private List<BluetoothDevice> availableDevices= new ArrayList<BluetoothDevice>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -39,23 +39,21 @@ public class PairingFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
 
-        adapter = new PairingAdapter(getContext(), bondedDevicesName, availableDevicesName);
+        adapter = new PairingAdapter(getContext(), bondedDevices, availableDevices);
         recyclerView.setAdapter(adapter);
 
         return view;
     }
 
-    public void setBondedDevicesName(Set<BluetoothDevice> bondedDevices) {
+    public void setBondedDevices(Set<BluetoothDevice> bondedDevices) {
         for (BluetoothDevice device: bondedDevices) {
-            String name = device.getName();
-            bondedDevicesName.add(name);
+            bondedDevices.add(device);
         }
     }
 
-    public void setAvailableDevicesName(Set<BluetoothDevice> availableDevices) {
+    public void setAvailableDevices(Set<BluetoothDevice> availableDevices) {
         for (BluetoothDevice device: availableDevices) {
-            String name = device.getName();
-            bondedDevicesName.add(name);
+            availableDevices.add(device);
         }
     }
 

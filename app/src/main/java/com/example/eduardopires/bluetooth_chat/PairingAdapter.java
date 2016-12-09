@@ -1,5 +1,6 @@
 package com.example.eduardopires.bluetooth_chat;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,11 +19,11 @@ import java.util.List;
 
 public class PairingAdapter extends SimpleSectionedAdapter<PairingAdapter.ItemViewHolder>{
 
-    private List<String> bondedDevices = new ArrayList<String>();
-    private List<String> availableDevices = new ArrayList<String>();
+    private List<BluetoothDevice> bondedDevices = new ArrayList<BluetoothDevice>();
+    private List<BluetoothDevice> availableDevices = new ArrayList<BluetoothDevice>();
     private Context context;
 
-    public PairingAdapter(Context context, List<String> bondedDevices, List<String> availableDevices) {
+    public PairingAdapter(Context context, List<BluetoothDevice> bondedDevices, List<BluetoothDevice> availableDevices) {
         this.context = context;
         this.bondedDevices = bondedDevices;
         this.availableDevices = availableDevices;
@@ -60,10 +61,10 @@ public class PairingAdapter extends SimpleSectionedAdapter<PairingAdapter.ItemVi
         String deviceName = "";
         switch (section) {
             case 0:
-                deviceName = bondedDevices.get(position);
+                deviceName = bondedDevices.get(position).getName();
                 break;
             case 1:
-                deviceName = availableDevices.get(position);
+                deviceName = availableDevices.get(position).getName();
                 break;
         }
 
