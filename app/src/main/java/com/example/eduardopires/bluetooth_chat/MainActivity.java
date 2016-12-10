@@ -9,30 +9,28 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
     private static int ENABLE_BLUETOOTH = 0;
-    private static int SELECT_PAIRED_DEVICE = 1;
-    private static int SELECT_DISCOVERED_DEVICE = 2;
 
-    private ViewPager pager;
     private BluetoothAdapter bluetoothAdapter;
     private FloatingActionButton fab;
     private List<BluetoothDevice> bondedDevices = new ArrayList<BluetoothDevice>();
     private List<BluetoothDevice> availableDevices = new ArrayList<BluetoothDevice>();
     private ProgressDialog dialog;
-    private PairingFragment fragment = new PairingFragment();
+    private RecyclerView recyclerView;
+    private DevicesAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,17 +39,17 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportActionBar().setElevation(0);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-
-        pager = (ViewPager) findViewById(R.id.pager);
-
-        tabLayout.setupWithViewPager(pager);
-
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         bondedDevices = new ArrayList<>(bluetoothAdapter.getBondedDevices());
         Log.d("Bonded Devices", bluetoothAdapter.getBondedDevices().toString());
 
-        setupViewPager(pager);
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+
+        adapter = new DevicesAdapter(this, bondedDevices, availableDevices);
+        recyclerView.setAdapter(adapter);
 
         if (bluetoothAdapter == null) {
             Snackbar.make(null, "Seu dispositivo não tem suporte a Bluetooth", Snackbar.LENGTH_SHORT).show();
@@ -94,17 +92,6 @@ public class MainActivity extends AppCompatActivity {
         unregisterReceiver(receiver);
     }
 
-    private void setupViewPager(ViewPager viewPager) {
-        BluetoothPagerAdapter adapter = new BluetoothPagerAdapter(getSupportFragmentManager());
-
-        fragment.setBondedDevices(bondedDevices);
-        fragment.setAvailableDevices(availableDevices);
-
-        adapter.addFragment(fragment, "Parear");
-        adapter.addFragment(new ConversationsFragment(), "Conversas");
-        viewPager.setAdapter(adapter);
-    }
-
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -121,9 +108,14 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(findViewById(R.id.root_view), "Busca iniciada", Snackbar.LENGTH_SHORT);
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 Snackbar.make(findViewById(R.id.root_view), "Busca finalizada", Snackbar.LENGTH_SHORT);
-                fragment.updateLists(availableDevices, bondedDevices);
+                updateLists(availableDevices, bondedDevices);
                 dialog.dismiss();
             }
         }
     };
+
+    public void updateLists(List<BluetoothDevice> availableDevices, List<BluetoothDevice> bondedDevices) {
+        adapter.updateAvailableDevices(availableDevices);
+        adapter.updateBondedDevices(bondedDevices);
+    }
 }

@@ -17,13 +17,13 @@ import java.util.List;
  * Created by 212571132 on 10/31/16.
  */
 
-public class PairingAdapter extends SimpleSectionedAdapter<PairingAdapter.ItemViewHolder>{
+public class DevicesAdapter extends SimpleSectionedAdapter<DevicesAdapter.ItemViewHolder>{
 
     private List<BluetoothDevice> bondedDevices = new ArrayList<BluetoothDevice>();
     private List<BluetoothDevice> availableDevices = new ArrayList<BluetoothDevice>();
     private Context context;
 
-    public PairingAdapter(Context context, List<BluetoothDevice> bondedDevices, List<BluetoothDevice> availableDevices) {
+    public DevicesAdapter(Context context, List<BluetoothDevice> bondedDevices, List<BluetoothDevice> availableDevices) {
         this.context = context;
         this.bondedDevices = bondedDevices;
         this.availableDevices = availableDevices;
