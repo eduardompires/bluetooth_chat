@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
 
-        adapter = new DevicesAdapter(this, bondedDevices, availableDevices);
+        adapter = new DevicesAdapter(this, bondedDevices, availableDevices, onDeviceClickListener());
         recyclerView.setAdapter(adapter);
 
         if (bluetoothAdapter == null) {
@@ -117,5 +117,16 @@ public class MainActivity extends AppCompatActivity {
     public void updateLists(List<BluetoothDevice> availableDevices, List<BluetoothDevice> bondedDevices) {
         adapter.updateAvailableDevices(availableDevices);
         adapter.updateBondedDevices(bondedDevices);
+    }
+
+    private DevicesAdapter.OnDeviceClick onDeviceClickListener() {
+        return new DevicesAdapter.OnDeviceClick() {
+            @Override
+            public void onClick(View view, int idx) {
+                Intent intent = new Intent(MainActivity.this, ConversationActivity.class);
+                intent.putExtra("device", bondedDevices.get(idx));
+                startActivity(intent);
+            }
+        };
     }
 }

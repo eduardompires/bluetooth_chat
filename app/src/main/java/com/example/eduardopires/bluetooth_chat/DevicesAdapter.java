@@ -22,11 +22,13 @@ public class DevicesAdapter extends SimpleSectionedAdapter<DevicesAdapter.ItemVi
     private List<BluetoothDevice> bondedDevices = new ArrayList<BluetoothDevice>();
     private List<BluetoothDevice> availableDevices = new ArrayList<BluetoothDevice>();
     private Context context;
+    private OnDeviceClick onDeviceClickListener;
 
-    public DevicesAdapter(Context context, List<BluetoothDevice> bondedDevices, List<BluetoothDevice> availableDevices) {
+    public DevicesAdapter(Context context, List<BluetoothDevice> bondedDevices, List<BluetoothDevice> availableDevices, OnDeviceClick onDeviceClickListener) {
         this.context = context;
         this.bondedDevices = bondedDevices;
         this.availableDevices = availableDevices;
+        this.onDeviceClickListener = onDeviceClickListener;
     }
 
     @Override
@@ -57,7 +59,7 @@ public class DevicesAdapter extends SimpleSectionedAdapter<DevicesAdapter.ItemVi
     }
 
     @Override
-    protected void onBindItemViewHolder(ItemViewHolder holder, int section, int position) {
+    protected void onBindItemViewHolder(final ItemViewHolder holder, int section, final int position) {
         String deviceName = "";
         switch (section) {
             case 0:
@@ -69,6 +71,16 @@ public class DevicesAdapter extends SimpleSectionedAdapter<DevicesAdapter.ItemVi
         }
 
         holder.textView.setText(deviceName);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onDeviceClickListener.onClick(holder.itemView, position);
+            }
+        });
+    }
+
+    public interface OnDeviceClick {
+        void onClick(View view, int idx);
     }
 
     public void updateBondedDevices(List<BluetoothDevice> bondedDevices) {
