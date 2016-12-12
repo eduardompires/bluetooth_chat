@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,6 +16,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +27,9 @@ public class MainActivity extends AppCompatActivity {
     private static int ENABLE_BLUETOOTH = 0;
 
     private BluetoothAdapter bluetoothAdapter;
-    private FloatingActionButton fab;
+    private FloatingActionButton refreshFab;
+    private FloatingActionButton serverFab;
+    private FloatingActionMenu menuFab;
     private List<BluetoothDevice> bondedDevices = new ArrayList<BluetoothDevice>();
     private List<BluetoothDevice> availableDevices = new ArrayList<BluetoothDevice>();
     private ProgressDialog dialog;
@@ -61,9 +65,17 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(bluetoothIntent, ENABLE_BLUETOOTH);
         }
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
+        menuFab = (FloatingActionMenu) findViewById(R.id.fab);
+        menuFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                menuFab.toggleMenu(true);
+            }
+        });
 
-        fab.setOnClickListener(new View.OnClickListener() {
+        refreshFab = (FloatingActionButton) findViewById(R.id.refresh_fab);
+
+        refreshFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 bluetoothAdapter.startDiscovery();
@@ -72,6 +84,19 @@ public class MainActivity extends AppCompatActivity {
                 registerReceiver(receiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
             }
         });
+
+        serverFab = (FloatingActionButton) findViewById(R.id.server_fab);
+
+        serverFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BluetoothChatServerActivity serverActivity = new BluetoothChatServerActivity();
+                serverActivity.setAdapter(bluetoothAdapter);
+
+                startActivity(new Intent(MainActivity.this, serverActivity.getClass()));
+            }
+        });
+
     }
 
     @Override
